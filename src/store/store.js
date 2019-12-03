@@ -1,13 +1,24 @@
-import Vue from "vue";
 import Vuex from "vuex";
-import state from "./states";
-import mutations from "./mutations";
+import Vue from "vue";
 
 Vue.use(Vuex);
+
+const state = {
+  count: 0
+};
 
 const getters = {
   gettersAdd(state) {
     return state.count + 100;
+  }
+}
+
+const mutations = {
+  mutationsAdd(state, n) {
+    return (state.count += n);
+  },
+  mutationsReduce(state, n) {
+    return (state.count -= n);
   }
 };
 
@@ -23,6 +34,6 @@ const actions = {
 export default new Vuex.Store({
   state,
   mutations,
-  getters,
-  actions
+  actions,
+  getters
 });
