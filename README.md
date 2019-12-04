@@ -20,34 +20,6 @@
 9. 配置文件存放地方，第一个是独立文件夹位置，第二个是在package.json文件里
 10. 询问是否记录这一次的配置，以便下次使用，如一开始的时候会显示的vuecli3配置
 
-# 引入axios，并加到原型链中
-- import axios from 'axios';
-- Vue.prototype.axios = axios;
-- this.axios.get().then
-
-# 封装axios 
-1. 新建config文件夹 axios.js文件 引入axios
-2. 可以使用自定义配置新建一个 axios实例 axios.create([config]) 
-
-```JavaScript
-//axios配置
-const server = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 5000
-});
-```
-3. 创建api文件夹 
-```JavaScript
-import request from "../config/axios";
-
-export function userLogin(data) {
-  return request({
-    url: "/api/login",
-    method: "post",
-    data: data
-  });
-}
-```
 # vue3配置绝对路径@踩坑
  - 和vue cli2相比文件目录少了很多配置，没有了build和config目录，vue cli3可以在项目根目录新建一个vue.config.js文件，像之前的很多繁琐配置，都可以在这个文件里配置啦。[参考文章](https://www.cnblogs.com/zhouyingying/p/11382157.html)
 ```JavaScript
@@ -65,6 +37,116 @@ module.exports = {
   }
 };
 ```
+
+# 前后端连载
+- 安装concurrently
+- "koa": "npm run serve  --prefix koa2-mongoose", --prefix指向需要连载的文件
+- "dev": "concurrently \"npm run serve\" \" npm run koa \""
+
+# vscode的eslint插件不起作用
+1. vsCode打开“设置”，选择"settings.json",搜索eslint
+2. Eslint>Code Action: show Documention 下面的settings.json中编辑
+```JavaScript
+"eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    {
+      "language": "vue",
+      "autoFix": true
+    },
+    "vue"
+  ],
+  "eslint.autoFixOnSave": true
+```
+3. 输入内容重启
+
+# 创建完毕准备工作
+1. 新建pege文件夹，创建页面，修改router配置路径
+2. 配置全局样式，assets文件下面新建一个文件夹css，里面新建一个reset.css文件，在main.js中引入
+3. 配置一个404页面
+4. 安装ElementUI 并且引入
+```JavaScript
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+Vue.use(ElementUI);
+```
+
+# 引入axios，并加到原型链中
+- import axios from 'axios';
+- Vue.prototype.axios = axios;
+- this.axios.get().then
+
+# 封装axios [axios官网](http://www.axios-js.com/zh-cn/docs/index.html#axios-request-config-1)
+1. 新建config文件夹 axios.js文件 引入axios
+2. 可以使用自定义配置新建一个 axios实例 axios.create([config]) 
+3. 设置请求响应拦截(因为用axios要用到请求和响应拦截) 官网拦截器 设置加载动画
+```JavaScript
+//axios配置
+import axios from "axios";
+import { Loading, Message } from "element-ui";
+
+let loading;
+const startLoading = () => {
+  loading = Loading.service({
+    lock: true,
+    text: "拼命加载中...",
+    background: "rgba(0,0,0,0.7)"
+  });
+};
+
+const endLoading = () => {
+  loading.close();
+};
+
+//axios配置
+const server = axios.create({
+  baseURL: "/api",
+  timeout: 5000
+});
+
+// 添加请求拦截器
+server.interceptors.request.use(
+  function(config) {
+    // 在发送请求之前做些什么
+    startLoading();
+    return config;
+  },
+  function(error) {
+    // 对请求错误做些什么
+    return Promise.reject(error);
+  }
+);
+
+// 添加响应拦截器
+server.interceptors.response.use(
+  function(response) {
+    // 对响应数据做点什么
+    endLoading();
+    return response;
+  },
+  function(error) {
+    // 对响应错误做点什么
+    Message.error(error.response.data);
+    return Promise.reject(error);
+  }
+);
+
+export default server;
+
+```
+3. 创建api文件夹 
+```JavaScript
+import request from "../config/axios";
+
+export function userLogin(data) {
+  return request({
+    url: "/api/login",
+    method: "post",
+    data: data
+  });
+}
+```
+
 # 配置mockjs截取请求
 - 先下mockjs包 新建mock文件夹，以及index.js
 - 设置延时请求到数据,因为真实的请求是需要时间的，mock不设置延时则是马上拿到数据返回。
@@ -82,7 +164,8 @@ Mock.mock(/\/api\/login/, "post", mockLogin);
 export default Mock;
 ```
 - 拦截数据的方法Mock.mock(url,data);url用正则写也能拦截数据。
-- Mock.mock()第一个参数是需要拦截的接口，第二个参数表明ajax请求类型（get/post/put/delete等），第三个参数是模拟返回值的数据模版。
+[参考文章](https://www.jianshu.com/p/742da49cad3c);
+- Mock.mock( rurl, rtype, function( options ) )记录用于生成响应数据的函数。当拦截到匹配 rurl 和 rtype 的 Ajax 请求时，函数 function(options) 将被执行，并把执行结果作为响应数据返回。 options指向本次请求的 Ajax 选项集，含有 url、type 和 body 三个属性，
 - 返回数据的文件 记得在main.js中导入mock不然不生效
 ```JavaScript 
 // 例子1 api.js
@@ -94,7 +177,7 @@ export const mockLogin = config => {
 import Mock from 'mockjs'
 const Random = Mock.Random;
 
-const data = () => {
+export const data = () => {
   let arr = []
   for (let i=0; i<100; i++) {
     let newArr = {
@@ -106,39 +189,30 @@ const data = () => {
   }
   return arr
 }
+```
 
-export default {
-   data
+# 配置跨域请求(vue-cli3.0的配置方法)
+```JavaScript
+// webpack-dev-server 相关配置
+devServer: {
+  open: true,
+  host: "localhost",
+  port: 8080,
+  https: false,
+  hotOnly: false,
+  proxy: {
+    // 配置跨域
+    "/api": {
+      target: "http://localhost:3000/api/",
+      ws: true,
+      changOrigin: true,
+      pathRewrite: {
+        "^/api": ""
+      }
+    }
+  }
 }
 ```
-
-# 项目中引入Element-UI 和vuex
-```JavaScript 
-
-```
-
-# Navicat Premium安装与激活
-1. Patch，勾选Backup、Host和Navicat v12，然后点击Patch按钮,找到Navicat Premium 12安装路径下的navicat.exe，选中并点击打开,此时出现如下弹窗，提示navicat.exe - x64 -> Cracked.，提示已破解。若提示libcc.dll或navicat.exe出错，检查是否未关闭Navicat Premium，或到安装目录下将libcc.dll和navicat.exe删除，并将libcc.dll.BAK或navicat.exe.BAK去掉.BAK后缀名。否则卸载已安装的Navicat Premium并清理文件残留和注册表残留。
-2. 确保License为Enterprise，Products为Premium，Languages为Simplified Chinese
-3. 确保Resale Version为Site license；
-4. Your Name和Your Organization可以任意填写，点击Generate，将自动生成Serial Keygen（即注册码）
-5. 打开Navicat，点击菜单栏的帮助，选择注册，在注册窗口键处填入上一步生成的注册码，然后点击激活。
-6. 弹框点击手动激活 将Navicat手动激活窗口的请求码框中内容复制到注册机，点击Activation Code下面的Generate按钮。将注册机生成的激活码内容复制到Navicat手动激活窗口的激活码框中，然后点击激活按钮。
-
-# 安装MySQL数据库[参考文献](https://blog.csdn.net/qq_37350706/article/details/81707862)
-1. 从官网下载压缩包解压
-2. 初始化MySQL 必须以管理员身份运行cmd 进入到mysql的bin目录下
-3. 在bin目录下执行命令：mysqld --initialize --console
-- [注意] root @ localhost：后面的字符串就是初始密码。后续登录需要用到。复制密码先保存起来!!!
-4. 安装MySQL服务 + 启动MySQL 服务
-- mysqld --install [服务名]（服务名可以不加默认为mysql
-- Service successfully installed 为成功
-- the Service already exists! 说明mysql服务已存在 通过 sc delete mysql删除服务
-5. 服务安装成功之后通过命令net start mysql启动MySQL的服务
-6. 修改初始密码 在mysql的bin目录下 进行数据库连接  mysql -u root -p 输入之前保存的初始密码
-7. ALTER USER 'root'@'localhost' IDENTIFIED BY '新密码';
-8. exit 退出数据库
-
 
 
 

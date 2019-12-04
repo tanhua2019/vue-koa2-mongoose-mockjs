@@ -4,16 +4,15 @@
 
 <script>
 export default {
-  name:'',
-  data(){
-   return {
+  name: "",
+  data() {
+    return {};
+  },
 
-   }
-  }
-}
+  methods: {}
+};
 </script>
-
-<style lang='less' scoped>
+<style lang="less" scoped>
 .ErrorBox {
   position: fixed;
   left: 0;

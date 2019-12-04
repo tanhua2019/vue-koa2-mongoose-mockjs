@@ -1,7 +1,7 @@
 import Mock from "mockjs";
 const Random = Mock.Random;
 
-const data = () => {
+export const data = () => {
   let arr = [];
   for (let i = 0; i < 100; i++) {
     let newArr = {
@@ -13,7 +13,3 @@ const data = () => {
   }
   return arr;
 };
-
-export default {
-  data: data
-}

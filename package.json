@@ -5,10 +5,13 @@
   "scripts": {
     "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
-    "lint": "eslint --fix --ext .js,.vue src"
+    "lint": "eslint --fix --ext .js,.vue src",
+    "koa": "npm run serve  --prefix koa2-mongoose",
+    "dev": "concurrently \"npm run serve\" \" npm run koa \""
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "concurrently": "^5.0.0",
     "core-js": "^3.4.3",
     "element-ui": "^2.13.0",
     "mockjs": "^1.1.0",
@@ -24,7 +27,7 @@
     "@vue/cli-service": "^4.1.0",
     "@vue/eslint-config-prettier": "^5.0.0",
     "babel-eslint": "^10.0.3",
-    "eslint": "^5.16.0",
+    "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^5.0.0",
     "less": "^3.0.4",
